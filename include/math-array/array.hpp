@@ -7,6 +7,7 @@
 #include <vector>
 #include <memory>
 #include <cstring>
+#include <cmath>
 
 #include <Galaxy-Log/log.hpp>
 
@@ -187,12 +188,12 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 		}
 		/** @} */
 		void					zeros() {
-			for(int i = 0; i < size_; ++i) {
+			for(size_t i = 0; i < size_; ++i) {
 				v_[i] = 0;
 			}
 		}
 		void					ones() {
-			for(int i = 0; i < size_; ++i) {
+			for(size_t i = 0; i < size_; ++i) {
 				v_[i] = 1;
 			}
 		}
@@ -340,7 +341,7 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 			std::vector<size_t> iu;
 			for(size_t a = 0; a < N; ++a) {
 				int b = (i[a] + n_[a]) % n_[a];
-				assert((b >= 0) && (b < n_[a]));
+				assert((b >= 0) && ((size_t)b < n_[a]));
 				iu.push_back((size_t)b);
 			}
 			return *(__get1(v_, c_.cbegin(), n_.cbegin(), iu.cbegin(), iu));
@@ -388,10 +389,10 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 		template<typename A, typename... B> T*		__get(T* t, std::vector<size_t>::const_iterator c, std::vector<size_t>::const_iterator n, A a, B... b) {
 			assert(c != c_.end());
 			assert(n != n_.end());
-
+			
 			a = (a + (*n)) % (*n);
-			assert((a >= 0) && (a < (*n)));
-
+			assert((a >= 0) && ((size_t)a < (*n)));
+			
 			t += (*c) * a;
 
 			c++;
@@ -422,8 +423,8 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 			}
 
 
-			int i_src = *i_src_b;
-			int i_dst = *i_dst_b;
+			size_t i_src = *i_src_b;
+			size_t i_dst = *i_dst_b;
 
 			for(; i_src < *i_src_e; ++i_src, ++i_dst) {
 
@@ -702,7 +703,7 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 			}
 			// calculate shape
 			std::vector<size_t> shape = end;
-			for(int i = 0; i < beg.size(); ++i) {
+			for(size_t i = 0; i < beg.size(); ++i) {
 				shape[i] -= beg[i];
 			}
 
@@ -742,7 +743,7 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 		void					serialize(oarchive& ar, unsigned int const & version) {
 			// assumes dimension and type are known
 			ar << n_;
-			for(int i = 0; i < size_; ++i) {
+			for(size_t i = 0; i < size_; ++i) {
 				ar << v_[i];
 			}
 		}
