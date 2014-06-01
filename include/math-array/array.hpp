@@ -8,14 +8,30 @@
 #include <memory>
 #include <cstring>
 
-#include <Diff2D/math.hpp>
-#include <Diff2D/log.hpp>
-#include <Diff2D/config.hpp>
+#include <Galaxy-Log/log.hpp>
+
+#include <math-array/io.hpp>
+#include <math-array/range.hpp>
+#include <math-array/archive.hpp>
+
+
+/** @file array.hpp
+ */
+
+typedef math::basic_binary_oarchive oarchive;
+
+
+
+
+
 
 template<typename T, int N> class __array;
+
+/** @typedef array
+ */
 template<typename T, int N> using array = std::shared_ptr< __array<T,N> >;
 
-
+#define ASSERT(x) assert(x)
 #define FOR(i,level) for(size_t i = 0; i < n_[level]; i++)
 
 template <int D, typename U> struct __multivec {
@@ -165,9 +181,9 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 
 			v_ = new T[size_];
 
-			LOG_SEV_CHANNEL(d2d::log::sl::debug, LOG_ARRAY) << "n    ", print(n_);
-			LOG_SEV_CHANNEL(d2d::log::sl::debug, LOG_ARRAY) << "c    ", print(c_);
-			LOG_SEV_CHANNEL(d2d::log::sl::debug, LOG_ARRAY) << "size " << size_ << std::endl;
+			//BOOST_LOG_CHANNEL_SEV(gal::log::lg, "math-array", debug) << "n    " << n_ << std::endl;
+			//BOOST_LOG_CHANNEL_SEV(gal::log::lg, "math-array", debug) << "c    " << c_ << std::endl;
+			BOOST_LOG_CHANNEL_SEV(gal::log::lg, "math-array", debug) << "size " << size_ << std::endl;
 		}
 		/** @} */
 		void					zeros() {
@@ -204,7 +220,7 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 
 		shared					transpose() {
 			if(N != 2) {
-				LOG_SEV_CHANNEL(d2d::log::sl::critical, d2d::log::array) << "Transpose for array with N==" << N << " not implemented" << std::endl;
+				BOOST_LOG_CHANNEL_SEV(gal::log::lg, "math-array", critical) << "Transpose for array with N==" << N << " not implemented" << std::endl;
 				abort();
 			}
 
@@ -220,7 +236,7 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 		}
 		shared					transpose_self() {
 			if(N != 2) {
-				LOG_SEV_CHANNEL(d2d::log::sl::critical, d2d::log::array) << "Transpose for array with N==" << N << " not implemented" << std::endl;
+				BOOST_LOG_CHANNEL_SEV(gal::log::lg, "math-array", critical) << "Transpose for array with N==" << N << " not implemented" << std::endl;
 				abort();
 			}
 
@@ -232,11 +248,11 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 		}
 		shared					rot90(int i) {
 			if(N != 2) {
-				LOG_SEV_CHANNEL(d2d::log::sl::critical, d2d::log::array) << "rot90 for N==" << N << " not implemented" << std::endl;
+				BOOST_LOG_CHANNEL_SEV(gal::log::lg, "math-array", critical) << "rot90 for N==" << N << " not implemented" << std::endl;
 				abort();
 			}
 			if(i != 1) {
-				LOG_SEV_CHANNEL(d2d::log::sl::critical, d2d::log::array) << "rot90 for i==" << i << " not implemented" << std::endl;
+				BOOST_LOG_CHANNEL_SEV(gal::log::lg, "math-array", critical) << "rot90 for i==" << i << " not implemented" << std::endl;
 				abort();
 			}
 
@@ -252,11 +268,11 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 		}
 		shared					rot90_self(int i) {
 			if(N != 2) {
-				LOG_SEV_CHANNEL(d2d::log::sl::critical, d2d::log::array) << "rot90 for N==" << N << " not implemented" << std::endl;
+				BOOST_LOG_CHANNEL_SEV(gal::log::lg, "math-array", critical) << "rot90 for N==" << N << " not implemented" << std::endl;
 				abort();
 			}
 			if(i != 1) {
-				LOG_SEV_CHANNEL(d2d::log::sl::critical, d2d::log::array) << "rot90 for i==" << i << " not implemented" << std::endl;
+				BOOST_LOG_CHANNEL_SEV(gal::log::lg, "math-array", critical) << "rot90 for i==" << i << " not implemented" << std::endl;
 				abort();
 			}
 
@@ -268,10 +284,10 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 		}
 		shared					fliplr() {
 			if(N != 2) {
-				LOG_SEV_CHANNEL(d2d::log::sl::critical, d2d::log::array) << "fliplr for N==" << N << " not implemented" << std::endl;
+				BOOST_LOG_CHANNEL_SEV(gal::log::lg, "math-array", critical) << "fliplr for N==" << N << " not implemented" << std::endl;
 				abort();
 			}
-			
+
 			auto ret = std::make_shared< __array<T,N> >(*this);
 
 			ret->fliplr_self();
@@ -280,7 +296,7 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 		}
 		shared					fliplr_self() {
 			if(N != 2) {
-				LOG_SEV_CHANNEL(d2d::log::sl::critical, d2d::log::array) << "fliplr for N==" << N << " not implemented" << std::endl;
+				BOOST_LOG_CHANNEL_SEV(gal::log::lg, "math-array", critical) << "fliplr for N==" << N << " not implemented" << std::endl;
 				abort();
 			}
 			size_t half = (n_[1] - (n_[1] % 2)) / 2;
@@ -362,7 +378,7 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 		template<typename... I> T&			get(I... b) {
 			T* ptr = __get<I...>(v_, c_.begin(), n_.begin(), b...);
 
-			LOG_SEV_CHANNEL(d2d::log::sl::debug, LOG_ARRAY) << "get " << (int)(ptr - v_) << std::endl;
+			//BOOST_LOG_CHANNEL_SEV(gal::log::lg, "math-array", debug) << "get " << (int)(ptr - v_) << std::endl;
 
 			return *(ptr);
 		}
@@ -396,7 +412,7 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 				std::vector<size_t>::const_iterator c_dst,
 				std::vector<size_t> const & vec_i_src_b) {
 
-			LOG_SEV_CHANNEL(d2d::log::sl::debug, LOG_ARRAY)
+			BOOST_LOG_CHANNEL_SEV(gal::log::lg, "math-array", debug)
 				<< "copy *(src + " << (src-src0) << ") to *(dst + " << (dst-dst0) << ")" << std::endl;
 
 
@@ -533,7 +549,8 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 			return __array<T,N>::shared_from_this();
 		}
 		/** @} */
-		/** @name shared @{ */
+		/** @name shared arithmetic
+		 * @{ */
 		shared					add(std::shared_ptr< __array<T,N> > const & rhs) {
 			auto ret = std::make_shared< __array<T,N> >(*this);
 			(*ret) += (*rhs);
@@ -544,11 +561,58 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 			ret *= rhs;
 			return ret;
 		}
+		shared					divide(std::shared_ptr< __array<T,N> > const & rhs) {
+			auto ret = std::make_shared< __array<T,N> >(*this);
+			ret /= rhs;
+			return ret;
+		}
 		/** @} */
-		/** @name math @{ */
-		shared					square() {
+		/** @name shared scalar arithmetic
+		 * @{ */
+		shared					add(T const & rhs) {
+			auto ret = std::make_shared< __array<T,N> >(*this);
+			(*ret) += rhs;
+			return ret;
+		}
+		shared					multiply(T const & rhs) {
+			auto ret = std::make_shared< __array<T,N> >(*this);
+			(*ret) *= rhs;
+			return ret;
+		}
+		shared					divide(T const & rhs) {
+			auto ret = std::make_shared< __array<T,N> >(*this);
+			(*ret) /= rhs;
+			return ret;
+		}
+		/** @} */
+		/** @name math
+		  @{ */
+		shared								square() {
+
 			auto ret = std::make_shared< __array<T,N> >(*this);
 			ret->square_self();
+			return ret;
+		}
+		template<typename U> std::shared_ptr< __array<U,N> >		ceil() {
+			auto ret = make_uninit<U,N>(n_);
+			for(size_t i = 0; i < size_; ++i) {
+				ret->v_[i] = (U)(::ceil(v_[i]));
+			}
+			return ret;
+		}
+		shared								cumsum() {
+			if(N != 1) {
+				BOOST_LOG_CHANNEL_SEV(gal::log::lg, "math-array", critical) << "fliplr for N==" << N << " not implemented" << std::endl;
+				abort();
+			}
+			
+			auto ret = make_uninit<T,N>(n_);
+
+			ret->get(0) = get(0);
+			for(int i = 1; i < n_[0]; ++i) {
+				 ret->get(i) = ret->get(i-1) + get(i);
+			}
+
 			return ret;
 		}
 		void					square_self() {
@@ -600,8 +664,8 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 
 			auto ret = make_uninit<T,N+1>(n);
 
-			LOG_SEV_CHANNEL(d2d::log::sl::critical, LOG_ARRAY)  << "sorry, not yet implemented" << std::endl;
-			assert(0);
+			BOOST_LOG_CHANNEL_SEV(gal::log::lg, "math-array", critical)  << "sorry, not yet implemented" << std::endl;
+			abort();
 
 			//for(int i : range(size_)) {
 			//}
@@ -671,6 +735,16 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 		}
 		std::vector<size_t>			shape() {
 			return n_;
+		}
+		/** @} */
+		/** @name IO
+		 * @{ */
+		void					serialize(oarchive& ar, unsigned int const & version) {
+			// assumes dimension and type are known
+			ar << n_;
+			for(int i = 0; i < size_; ++i) {
+				ar << v_[i];
+			}
 		}
 		/** @} */
 	public://private:
