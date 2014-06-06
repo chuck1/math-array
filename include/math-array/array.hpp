@@ -24,15 +24,12 @@ typedef math::basic_binary_oarchive oarchive;
 
 
 
-
-
 template<typename T, int N> class __array;
 
 /** @typedef array
  */
 template<typename T, int N> using array = std::shared_ptr< __array<T,N> >;
 
-#define ASSERT(x) assert(x)
 #define FOR(i,level) for(size_t i = 0; i < n_[level]; i++)
 
 template <int D, typename U> struct __multivec {
@@ -165,17 +162,21 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 		}
 		void					alloc(std::vector<size_t> n) {
 			assert(this);
-
 			assert(n.size() == N);
 
 			n_ = n;
 
 			size_ = 1;
-			for(int i : n) size_ *= i;
+			for(size_t i : n_) {
+				assert(i > 0);
+				size_ *= i;
+			}
 
 			c_.clear();
-			int s = size_;
-			for(int i : n_) {
+			size_t s(size_);
+			for(size_t i : n_) {
+				assert(i > 0);
+				//std::cout << "i s (i > 0)" << i << " " << s << " " << (i>0) << std::endl;
 				s /= i;
 				c_.push_back(s);
 			}
@@ -485,6 +486,7 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 
 			for(int i = 0; i < size_; ++i) {
 				v_[i] /= rhs.v_[i];
+				assert(!std::isinf(v_[i]));
 			}
 
 			return *this;
@@ -610,7 +612,7 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 			auto ret = make_uninit<T,N>(n_);
 
 			ret->get(0) = get(0);
-			for(int i = 1; i < n_[0]; ++i) {
+			for(size_t i = 1; i < n_[0]; ++i) {
 				 ret->get(i) = ret->get(i-1) + get(i);
 			}
 
@@ -674,12 +676,21 @@ template<typename T, int N> class __array: public std::enable_shared_from_this< 
 			return ret;
 		}
 		T					fda_1_back(int i1, T h) {
-			ASSERT(N == 1);
+			assert(N == 1);
 
 			size_t iu0 = ((i1-1) + size_) % size_;
 			size_t iu1 = (i1 + size_) % size_;
 
 			return ((v_[iu1] - v_[iu0]) / h);
+		}
+		T					fda_2_back(int i2, T h) {
+			assert(N == 1);
+			
+			size_t iu0 = ((i2-2) + size_) % size_;
+			size_t iu1 = ((i2-1) + size_) % size_;
+			size_t iu2 = (i2 + size_) % size_;
+			
+			return ((v_[iu2] - (2.0 * v_[iu1]) + v_[iu0])/(h*h));
 		}
 		/** @} */
 		/** @name iterating

@@ -10,7 +10,6 @@ namespace math {
 		public:
 			basic_binary_oarchive(std::ofstream& ofs): ofs_(ofs) {
 			}
-	
 			
 			template<typename T> basic_binary_oarchive&		operator<<(T&& t) {
 				T c(t);
@@ -31,7 +30,25 @@ namespace math {
 
 			std::ofstream&		ofs_;
 	};
+
+
+	class binary_oarchive: public basic_binary_oarchive {
+		public:
+			binary_oarchive(std::string filename):
+				math::basic_binary_oarchive(ofs_obj_),
+				filename_(filename) {}
+			void			open() {
+				ofs_.open(filename_);
+				if(!ofs_.is_open()) {
+					std::cout << "file stream not open" << std::endl;
+					throw 0;
+				}
+			}
+			std::string		filename_;
+			std::ofstream		ofs_obj_;
+	};
 }
+
 
 
 
