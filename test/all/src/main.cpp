@@ -2,7 +2,7 @@
 
 int main(int ac, char** av) {
 	
-	auto arr1 = make_uninit<int,2>({3,4});
+	auto arr1 = math::make_uninit<int,2>({3,4});
 	//auto arr2 = make_zeros<int,3>({1,2,3});
 	
 	for(size_t i : range(2)) {

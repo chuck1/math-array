@@ -5,7 +5,7 @@ SET(CMAKE_INSTALL_PREFIX /scratch/usr)
 PROJECT(math-array)
 
 FIND_PACKAGE(CMakeHelper)
-FIND_PACKAGE(Galaxy-Log)
+FIND_PACKAGE(galaxy_log)
 
 
 
